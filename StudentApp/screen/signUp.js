@@ -1,86 +1,72 @@
 import { View, Text,ImageBackground ,StyleSheet,TouchableOpacity,Alert} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import {  NativeBaseProvider,VStack,Input, } from 'native-base';
-import sqlite from 'react-native-sqlite-storage';
-
-
-const db= sqlite.openDatabase({name:'StudentMangement',location:'default'},
-            ()=>{
-                console.log("created")
-            },
-            error=>{
-                console.log(error)
-            }
-
-)
+import {initDb,dbConnection} from '../db/db';
+import {insertDataToSignUpTable,getAllDataFromSignUp} from '../db/SignUpTable'
 
 export default function SignUp({navigation}) {
     const [userName,setUserName]= useState('')
     const [email,setEmail]= useState('')
     const [password,setPassword]= useState('')
+
+    const [SignUpDetail,setSignUpDetail] = useState([])
+
     useEffect(()=>{
-        createTableSignUp();
-        getAll()
+        getAllUsers();
+        const init = async () =>{
+            await initDb();
+           }  
+      
+           init();
 
     })
-    const getAll=()=>{
-        try{
-          db.transaction((tx)=>{
-            tx.executeSql("SELECT email,userName FROM SignUp",
-            [],
-            (tx,results)=>{
-              var len =results.rows.length;
-              if(len>0){
-            
-                // for (const r of results.rows) {
-                //     console.log(r.email)
-                    
-                // }
-                for (let index = 0; index < len; index++) {
-                  
-                    var email=results.rows.item(index).email;
-                    var userName=results.rows.item(index).userName;
-                   console.log(email,userName)
-                }
-               
-              }
-            }
-            )
-          })
-        }catch(e){
-          console.log(e)
-        }
-       }
-       
-    const createTableSignUp=async()=>{
-       await db.transaction((tx)=>{
-        console.log("run")
-            tx.executeSql("CREATE TABLE IF NOT EXISTS SignUP(email VARCHAR(225) PRIMARY KEY,userName VARCHAR(225),password VARCHAR(225))")
-            ,()=>{
-                console.log("tbl")
-            },
-            error((e)=>{
-                console.log("error"+e)
-            })
-           
-        })
-        // const query=`INSERT INTO signUp(email,username,password) VALUES('${data.email}','${data.userName}','${data.password}')`
-        // return db.executeSql(query)
-
+   
+    const details={
+        email:email,
+        userName:userName,
+        password:password
     }
-    const fetchData=async()=>{
-        
-        try{
-            console.log('insert')
-           await db.transaction( async(tx)=>{
-              await  tx.executeSql("INSERT INTO SignUp(email,username,password) VALUES(?,?,?)",
-              [email,userName,password])
-            })
-            console.log('insert 1')
-            navigation.navigate('Login')
-        }catch(e){
-            console.log("error"+e)
+
+    
+    const saveSignUp= async()=>{
+        try {
+            const db=await dbConnection();
+            console.log("db connection ===================================================="+db)
+           
+            const save=await insertDataToSignUpTable(db,details);
+            console.log('================SignUp==============================================================')
+            
+             console.log(save)
+             alert('save success')
+            // getAllEducations();
+            
+        } catch (error) {
+            alert("error inserting education data");
+        }finally{
+             // close connection
+             db.close();
         }
+    }
+    const getAllUsers=async()=>{
+        try {
+            const db=await dbConnection();
+  
+            const education=await getAllDataFromSignUp(db);
+  
+            setSignUpDetail(education);
+            console.log(SignUpDetail)
+          
+        }catch(err){
+            alert("error gettig from education tbl");
+        }finally{
+            // close connection
+            db.close();
+        }
+    }
+    const saveUer=async()=>{
+        saveSignUp();
+        
+      
     }
  
  
@@ -125,7 +111,7 @@ export default function SignUp({navigation}) {
                     <TouchableOpacity 
                         style={style.btn} 
                         onPress={(e)=>{
-                            fetchData()
+                            saveUer();
                           
                             // if(fetchData()){
                             //     // navigation.navigate('LoginScreen')

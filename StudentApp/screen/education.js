@@ -23,7 +23,7 @@ export default function education({route}) {
     const [educationDetail,seteducationDetail] = useState([])
     
 
-    const educationDetails={
+    const educationDetailsOfStudent={
       studentEmail:studentEmail,
       qualification:qualification,
       instituteName:instituteName,
@@ -33,7 +33,7 @@ export default function education({route}) {
     }
     useEffect(()=>{ 
      // console.log(route.params.obj)
-      setStudentEmail('asanka5@gmail.com')
+      setStudentEmail('ovindu@gmail.com')
       getAllEducations();
      // console.log(route.params.obj.email)
      const init = async () =>{
@@ -42,17 +42,19 @@ export default function education({route}) {
 
      init();
 
-    })
+    },[])
 
     const saveEducationData= async()=>{
       try {
           const db=await dbConnection();
           console.log("db connection ===================================================="+db)
-          console.log(educationDetails)
-          const save=await insertDataToEducationTable(db,educationDetails);
-          alert('save success')
-          console.log(save)
-          getAllEducations();
+         
+          const save=await insertDataToEducationTable(db,educationDetailsOfStudent);
+          console.log('==============================================================================')
+          
+           console.log(save)
+           alert('save success')
+          // getAllEducations();
           
       } catch (error) {
           alert("error inserting education data");

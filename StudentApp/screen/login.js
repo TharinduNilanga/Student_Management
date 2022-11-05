@@ -1,19 +1,11 @@
 import { View, Text ,StyleSheet, TouchableOpacity} from 'react-native'
 import React, { useState } from 'react'
 import {  NativeBaseProvider,VStack,Input, } from 'native-base';
-import sqlite from 'react-native-sqlite-storage';
+
 import { useEffect } from 'react';
+import {initDb,dbConnection} from '../db/db';
+import {insertDataToSignUpTable,getAllDataFromSignUp} from '../db/SignUpTable'
 
-
-const db= sqlite.openDatabase({name:'StudentMangement',location:'default'},
-            ()=>{
-                console.log("created")
-            },
-            error=>{
-                console.log(error)
-            }
-
-)
 
 export default function App({navigation}) {
    const [email,setEmail]=useState('');
@@ -21,31 +13,45 @@ export default function App({navigation}) {
   
    const [emailStyle,setEmailStyle]=useState(style.estyle)
    const [passwordStyle,setPasswordStyle]=useState(style.estyle)
+
+   
+   const [SignUpDetail,setSignUpDetail] = useState([])
+
    useEffect(()=>{
-     getAll();
-   })
+    getAllUsers();
+   },[])
 
+   const getAllUsers=async()=>{
+    try {
+        const db=await dbConnection();
 
-   const getAll=()=>{
-    try{
-      db.transaction((tx)=>{
-        tx.executeSql("SELECT email,userName FROM SignUp",
-        [],
-        (tx,results)=>{
-          var len =results.rows.length;
-          if(len>0){
-        
-            var email=results.rows.item(0).email;
-            var userName=results.rows.item(0).userName;
-           console.log(email,password)
-          }
-        }
-        )
-      })
-    }catch(e){
-      console.log(e)
+        const education=await getAllDataFromSignUp(db);
+
+        setSignUpDetail(education);
+        console.log(SignUpDetail)
+      
+    }catch(err){
+        alert("error gettig from education tbl");
+    }finally{
+        // close connection
+        db.close();
     }
-   }
+}
+const Authorise=async()=>{
+  for (const s of SignUpDetail) {
+    if(email==s.email&&password==s.password){
+      navigation.navigate('DashBoard')
+    }else{
+      alert('Wrong User Name or')
+    }
+    
+  }
+   
+    
+  
+}
+
+   
    
  
   const validateEmail = (email) => {
@@ -98,6 +104,7 @@ export default function App({navigation}) {
             value={email}
             onChangeText={(e)=>{
                 setEmail(e)
+                
             }}
             style={emailStyle}
           />
@@ -109,6 +116,7 @@ export default function App({navigation}) {
             value={password}
             onChangeText={(e)=>{
                 setPassword(e)
+               
             }}
             style={passwordStyle} 
 
@@ -116,10 +124,20 @@ export default function App({navigation}) {
           
           <TouchableOpacity 
             style={style.btn}
-            onPress={LoginOnAction}
+           
+            onPress={()=>{Authorise();}}
+             
+              
+           
             >
             <Text style={{fontWeight:'bold',color:'white'}}>Login</Text>
           </TouchableOpacity>
+          <TouchableOpacity  
+                        style={style.account} 
+                        onPress={()=>{navigation.navigate('signUp')}}
+                    >
+                            <Text style={{fontWeight:'bold',color:'black',textDecorationLine:'underline'}}>create new account ?</Text>
+                    </TouchableOpacity>
         </VStack>
 
        </View>
