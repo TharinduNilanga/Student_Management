@@ -16,10 +16,21 @@ export default function studentEducationalDeatails({route}) {
          }  
       
          init();
-         LoadAll();
+         search();
       
      },[])
 
+     const search=()=>{
+        LoadAll();
+        for (const s of posts) {
+            if(email==s.studentEmail){
+              setPosts(posts)
+            }else{
+              alert('Not Found')
+            }
+            
+          }
+     }
 
     const LoadAll=async()=>{
         try {
