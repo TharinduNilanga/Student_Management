@@ -6,6 +6,7 @@ import {SearchData} from '../db/educationTable'
 
 export default function studentEducationalDeatails({route}) {
     const [posts, setPosts] = useState([]);
+    const [get, setGet] = useState([]);
     const [email,setEmail]=useState('')
 
     useEffect(()=>{
@@ -16,27 +17,23 @@ export default function studentEducationalDeatails({route}) {
          }  
       
          init();
+         LoadAll();
          search();
-      
+  
      },[])
 
      const search=()=>{
-        LoadAll();
-        for (const s of posts) {
-            if(email==s.studentEmail){
-              setPosts(posts)
-            }else{
-              alert('Not Found')
-            }
-            
-          }
+      LoadAll();
      }
 
     const LoadAll=async()=>{
         try {
             const db=await dbConnection();
+            const data={
+              studentEmail:email
+            }
 
-            const students=await SearchData(db);
+            const students=await SearchData(db,data);
 
             setPosts(students);
         
@@ -57,7 +54,7 @@ export default function studentEducationalDeatails({route}) {
               
                 <View style={{borderWidth:4, marginBottom:'1%', padding:5}}>
                         {/* <Text style={{marginBottom:10,color:'black',fontWeight:'bold',fontSize:20}} >{item.regNo}</Text> */}
-                         
+                          
                         
                         <Text style={{marginBottom:10,marginTop:10,color:'black',fontWeight:'bold'}} >Student Email:  {item.studentEmail}</Text>
                         <Text style={{marginBottom:10,marginTop:10,color:'black',fontWeight:'bold'}} >Qualification  :  {item.qualification}</Text>

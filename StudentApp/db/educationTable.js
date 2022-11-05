@@ -22,10 +22,11 @@ export const getAllDataFromEducation = async (db) =>{
     return education;
 
 }
-export const SearchData= async (db) =>{
+export const SearchData= async (db,data) =>{
     const search = [];
    
-    const res =   await db.executeSql(`SELECT * FROM Education `)
+   // const res =   await db.executeSql(`SELECT * FROM Education WHERE studentEmail='${Sheshan1@gmail.com}'`)
+    const res =   await db.executeSql(`SELECT * FROM Education WHERE studentEmail=('${data.studentEmail}')`)
     console.log('load====================')
     res.forEach(
        function(result){
