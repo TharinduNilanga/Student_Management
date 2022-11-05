@@ -33,7 +33,7 @@ export default function education({route}) {
     }
     useEffect(()=>{ 
      // console.log(route.params.obj)
-      setStudentEmail('ovindu@gmail.com')
+      setStudentEmail(route.params.obj)
       getAllEducations();
      // console.log(route.params.obj.email)
      const init = async () =>{
